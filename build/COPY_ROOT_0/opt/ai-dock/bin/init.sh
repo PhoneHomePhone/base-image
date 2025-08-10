@@ -183,12 +183,12 @@ function init_set_workspace() {
     
     WORKSPACE_UID=$(stat -c '%u' "$WORKSPACE")
     if [[ $WORKSPACE_UID -eq 0 ]]; then
-        WORKSPACE_UID=1000
+        WORKSPACE_UID=1001
     fi
     export WORKSPACE_UID
     WORKSPACE_GID=$(stat -c '%g' "$WORKSPACE")
     if [[ $WORKSPACE_GID -eq 0 ]]; then
-        WORKSPACE_GID=1000
+        WORKSPACE_GID=1001
     fi
     export WORKSPACE_GID
     

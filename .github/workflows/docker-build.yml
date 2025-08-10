@@ -1,4 +1,4 @@
-name: Docker Build
+name: Docker Build (Next-Gen)
 
 on:
   workflow_dispatch:
@@ -6,7 +6,7 @@ on:
   #  branches: [ "main" ]
     
 env:
-  UBUNTU_VERSION: 22.04
+  UBUNTU_VERSION: 24.04
   BUILDX_NO_DEFAULT_ATTESTATIONS: 1
 
 jobs:
@@ -63,7 +63,7 @@ jobs:
         run: |
           img_path_ghcr="ghcr.io/${{ env.REPO_NAMESPACE }}/${{ env.REPO_NAME }}"
           img_path_dhub="${{ secrets.DOCKERHUB_USER }}/${{ env.REPO_NAME }}"
-          base_tag="v2-cpu-${{ env.UBUNTU_VERSION }}"
+          base_tag="v3-cpu-ubuntu${{ env.UBUNTU_VERSION }}"
 
           if [[ ${{ matrix.build.latest }} == "true" ]]; then
               echo "Marking latest"
@@ -75,7 +75,7 @@ jobs:
           echo "TAGS=${TAGS}" >> ${GITHUB_ENV}
       -
         name: Build and push
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           context: build
           build-args: |
@@ -91,17 +91,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # The new, modernized NVIDIA build matrix for Ubuntu 24.04
         build:
-        - {latest: "false", cuda: "12.4.1-base"}
-        - {latest: "false", cuda: "12.4.1-cudnn-runtime"}
-        - {latest: "false", cuda: "12.4.1-cudnn-devel"}
-        - {latest: "false", cuda: "12.1.1-base"}
-        - {latest: "false", cuda: "12.1.1-cudnn8-runtime"}
-        - {latest: "false", cuda: "12.1.1-cudnn8-devel"}
-        - {latest: "false", cuda: "11.8.0-base"}
-        - {latest: "false", cuda: "11.8.0-cudnn8-runtime"}
-        - {latest: "false", cuda: "11.8.0-cudnn8-devel"}
-
+        - {latest: "false",  cuda: "12.8.1-base"}
+        - {latest: "false", cuda: "12.8.1-runtime"}
+        - {latest: "false", cuda: "12.8.1-devel"}
+        - {latest: "false", cuda: "12.5.1-base"}
+        - {latest: "false", cuda: "12.5.1-runtime"}
+        - {latest: "false", cuda: "12.5.1-devel"}
+    
     steps:
       -
         name: Free Space
@@ -147,7 +145,7 @@ jobs:
           img_path_ghcr="ghcr.io/${{ env.REPO_NAMESPACE }}/${{ env.REPO_NAME }}"
           img_path_dhub="${{ secrets.DOCKERHUB_USER }}/${{ env.REPO_NAME }}"
           
-          base_tag="v2-cuda-${{ matrix.build.cuda }}-${{ env.UBUNTU_VERSION }}"
+          base_tag="v3-cuda-${{ matrix.build.cuda }}-${{ env.UBUNTU_VERSION }}"
 
           if [[ ${{ matrix.build.latest }} == "true" ]]; then
               echo "Marking latest"
@@ -159,7 +157,7 @@ jobs:
           echo "TAGS=${TAGS}" >> ${GITHUB_ENV}
       -
         name: Build and push
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           context: build
           build-args: |
@@ -175,10 +173,18 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # The new, modernized ROCm build matrix for Ubuntu 24.04
+        # NOTE: Official ROCm support for 24.04 may lag, we are being forward-looking here.
         build:
-        - {latest: "false", rocm: "6.0-core"}
-        - {latest: "false", rocm: "6.0-runtime"}
-        - {latest: "false", rocm: "6.0-devel"}
+        - {latest: "false", rocm: "6.2-core"}
+        - {latest: "false", rocm: "6.2-runtime"}
+        - {latest: "false", rocm: "6.2-devel"}
+        - {latest: "false", rocm: "6.1-core"}
+        - {latest: "false", rocm: "6.1-runtime"}
+        - {latest: "false", rocm: "6.1-devel"}
+        #- {latest: "false", rocm: "6.0-core"}
+        #- {latest: "false", rocm: "6.0-runtime"}
+        #- {latest: "false", rocm: "6.0-devel"}
 
     steps:
       -
@@ -224,8 +230,7 @@ jobs:
         run: |
           img_path_ghcr="ghcr.io/${{ env.REPO_NAMESPACE }}/${{ env.REPO_NAME }}"
           img_path_dhub="${{ secrets.DOCKERHUB_USER }}/${{ env.REPO_NAME }}"
-
-          base_tag="v2-rocm-${{ matrix.build.rocm }}-${{ env.UBUNTU_VERSION }}"
+          base_tag="v3-rocm-${{ matrix.build.rocm }}-ubuntu${{ env.UBUNTU_VERSION }}"
 
           if [[ ${{ matrix.build.latest }} == "true" ]]; then
               echo "Marking latest"
@@ -237,11 +242,13 @@ jobs:
           echo "TAGS=${TAGS}" >> ${GITHUB_ENV}
       -
         name: Build and push
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           context: build
           build-args: |
-            IMAGE_BASE=ubuntu:${{ env.UBUNTU_VERSION }}
+            # Using rocm/dev-ubuntu-22.04 as base until 24.04 is officially supported
+            # We will need to adapt the amd.sh script significantly.
+            IMAGE_BASE=rocm/dev-ubuntu-22.04
             XPU_TARGET=AMD_GPU
             ROCM_STRING=${{ matrix.build.rocm }}
           push: true

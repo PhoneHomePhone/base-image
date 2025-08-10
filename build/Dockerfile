@@ -1,17 +1,17 @@
-ARG IMAGE_BASE="nvidia/cuda:11.8.0-base-ubuntu22.04"
+ARG IMAGE_BASE="nvidia/cuda:12.8.1-base-ubuntu24.04"
 
 # Caddy build
-FROM ubuntu:22.04 as caddybuilder
+FROM ubuntu:24.04 AS caddybuilder
 
 ENV PATH=/opt/go/bin:$PATH
 ENV GOROOT=/opt/go
 RUN apt-get update && \
     apt-get install -y wget && \
-    wget https://dl.google.com/go/go1.22.4.linux-amd64.tar.gz && \
-    tar -xf go1.22.4.linux-amd64.tar.gz && \
+    wget https://dl.google.com/go/go1.24.4.linux-amd64.tar.gz && \
+    tar -xf go1.24.4.linux-amd64.tar.gz && \
     mv ./go /opt && \ 
     wget https://github.com/caddyserver/xcaddy/releases/download/v0.4.2/xcaddy_0.4.2_linux_amd64.deb && \
-    apt-get install ./xcaddy_0.4.2_linux_amd64.deb && \
+    apt-get install -y ./xcaddy_0.4.2_linux_amd64.deb && \
     xcaddy build \
         --with github.com/caddyserver/caddy/v2=github.com/ai-dock/caddy/v2@httpredirect \
         --with github.com/caddyserver/replace-response && \
@@ -19,9 +19,7 @@ RUN apt-get update && \
     mkdir -p /opt/caddy/tls && \
     mv ./caddy /opt/caddy/bin
 
-
 # For build automation - Allows building from any Debian-based image
-
 FROM ${IMAGE_BASE}
 
 # System libs are handled in /etc/ld.so.conf.d
@@ -37,11 +35,9 @@ ENV XPU_TARGET=${XPU_TARGET}
 ARG NODE_VERSION=v22.2.0
 ENV NODE_VERSION=${NODE_VERSION}
 
-LABEL org.opencontainers.image.source https://github.com/ai-dock/base-image
-
-LABEL org.opencontainers.image.description "Base image for ai-dock."
-
-LABEL maintainer="Rob Ballantyne <rob@dynamedia.uk>"
+LABEL org.opencontainers.image.source="https://github.com/PhoneHomePhone/base-image"
+LABEL org.opencontainers.image.description="Base image for ai-dock upgraded to ubuntu 24.04, cuda 12.8.1, python 3.12"
+LABEL maintainer="https://github.com/PhoneHomePhone"
 
 SHELL ["/bin/bash", "-c"]
 # Set ENV variables

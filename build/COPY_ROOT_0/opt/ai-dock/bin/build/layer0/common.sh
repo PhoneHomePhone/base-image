@@ -1,5 +1,13 @@
 #!/bin/false
 
+#
+# Common installation script for all images.
+# Modernized for Ubuntu 22.04/24.04 compatibility
+#
+
+set -eo pipefail
+export DEBIAN_FRONTEND=noninteractive
+
 groupadd -g 1111 ai-dock
 chown root.ai-dock /opt
 chmod g+w /opt
@@ -11,85 +19,173 @@ dpkg --add-architecture i386
 apt-get update
 apt-get upgrade -y --no-install-recommends
 
-# System packages
-$APT_INSTALL \
-    acl \
-    apt-transport-https \
-    apt-utils \
-    bc \
-    build-essential \
-    bzip2 \
-    ca-certificates \
-    cmake \
-    curl \
-    dnsutils \
-    dos2unix \
-    fakeroot \
-    ffmpeg \
-    file \
-    fonts-dejavu \
-    fonts-freefont-ttf \
-    fonts-ubuntu \
-    fuse3 \
-    git \
-    git-lfs \
-    gnupg \
-    gpg \
-    gzip \
-    htop \
-    inotify-tools \
-    jq \
-    language-pack-en \
-    less \
-    libcap2-bin \
-    libelf1 \
-    libgl1-mesa-glx \
-    libglib2.0-0 \
-    libtcmalloc-minimal4 \
-    locales \
+# BOOTSTRAP: Install prerequisites for the script's logic FIRST.
+echo "Installing script prerequisites..."
+apt-get install -y --no-install-recommends \
     lsb-release \
-    lsof \
-    man \
-    mlocate \
-    net-tools \
-    nano \
-    openssh-server \
-    pkg-config \
-    psmisc \
-    python3-full \
-    python3-pip \
-    python3-venv \
-    rar \
-    rclone \
-    rsync \
-    screen \
-    software-properties-common \
-    sox \
-    ssl-cert \
-    sudo \
-    supervisor \
-    tmux \
-    tzdata \
-    unar \
-    unrar \
-    unzip \
-    vim \
-    wget \
-    xz-utils \
-    zip \
-    zstd
-    
+    software-properties-common
+
+# Get the OS version codename (e.g., "noble" for 24.04, "jammy" for 22.04)
+OS_CODENAME=$(lsb_release -cs)
+
+# REVISED LOGIC: Add Deadsnakes PPA only for older Ubuntu versions
+if [ "$OS_CODENAME" != "noble" ]; then
+    echo "Adding deadsnakes PPA for non-24.04 system..."
+    add-apt-repository ppa:deadsnakes/ppa -y
+    apt-get update
+fi
+
+# System packages
+
+# ACTION REQUIRED: You must verify/fix the package list inside the "noble" block.
+if [ "$OS_CODENAME" == "noble" ]; then
+    echo "Installing packages for Ubuntu 24.04 (noble)..."
+    # --- START UBUNTU 24.04 PACKAGE LIST ---
+    # ---- libgl1 \ # CHANGED from libgl1-mesa-glx
+    # ---- plocate \ # CHANGED from mlocate
+
+    $APT_INSTALL \
+        acl \
+        apt-transport-https \
+        apt-utils \
+        bc \
+        build-essential \
+        bzip2 \
+        ca-certificates \
+        cmake \
+        curl \
+        dnsutils \
+        dos2unix \
+        fakeroot \
+        ffmpeg \
+        file \
+        fonts-dejavu \
+        fonts-freefont-ttf \
+        fonts-ubuntu \
+        fuse3 \
+        git \
+        git-lfs \
+        gnupg \
+        gpg \
+        gzip \
+        htop \
+        inotify-tools \
+        jq \
+        language-pack-en \
+        less \
+        libcap2-bin \
+        libelf1 \
+        libgl1 \
+        libglib2.0-0 \
+        libtcmalloc-minimal4 \
+        locales \
+        lsb-release \
+        lsof \
+        man \
+        net-tools \
+        nano \
+        openssh-server \
+        pkg-config \
+        plocate \
+        psmisc \
+        python3-full \
+        python3-pip \
+        python3-venv \
+        rar \
+        rclone \
+        rsync \
+        screen \
+        software-properties-common \
+        sox \
+        ssl-cert \
+        sudo \
+        supervisor \
+        tmux \
+        tzdata \
+        unar \
+        unrar \
+        unzip \
+        vim \
+        wget \
+        xz-utils \
+        zip \
+        zstd
+else 
+    echo "Installing packages for Ubuntu 22.04 (jammy)..."
+    # --- START UBUNTU 22.04 PACKAGE LIST ---
+    $APT_INSTALL \
+        acl \
+        apt-transport-https \
+        apt-utils \
+        bc \
+        build-essential \
+        bzip2 \
+        ca-certificates \
+        cmake \
+        curl \
+        dnsutils \
+        dos2unix \
+        fakeroot \
+        ffmpeg \
+        file \
+        fonts-dejavu \
+        fonts-freefont-ttf \
+        fonts-ubuntu \
+        fuse3 \
+        git \
+        git-lfs \
+        gnupg \
+        gpg \
+        gzip \
+        htop \
+        inotify-tools \
+        jq \
+        language-pack-en \
+        less \
+        libcap2-bin \
+        libelf1 \
+        libgl1-mesa-glx \
+        libglib2.0-0 \
+        libtcmalloc-minimal4 \
+        locales \
+        lsb-release \
+        lsof \
+        man \
+        mlocate \
+        net-tools \
+        nano \
+        openssh-server \
+        pkg-config \
+        psmisc \
+        python3-full \
+        python3-pip \
+        python3-venv \
+        rar \
+        rclone \
+        rsync \
+        screen \
+        software-properties-common \
+        sox \
+        ssl-cert \
+        sudo \
+        supervisor \
+        tmux \
+        tzdata \
+        unar \
+        unrar \
+        unzip \
+        vim \
+        wget \
+        xz-utils \
+        zip \
+        zstd
+fi
+
 ln -sf $(ldconfig -p | grep -Po "libtcmalloc_minimal.so.\d" | head -n 1) \
         /lib/x86_64-linux-gnu/libtcmalloc.so
 
-# Ensure deadsnakes is available for Python versions not included with base distribution
-add-apt-repository ppa:deadsnakes/ppa
-apt update
-  
-locale-gen en_US.UTF-8
-
 # Install 
-python3.10 -m venv "$SERVICEPORTAL_VENV"
+python3 -m venv "$SERVICEPORTAL_VENV"
 "$SERVICEPORTAL_VENV_PIP" install \
     --no-cache-dir -r /opt/ai-dock/fastapi/requirements.txt
 
