@@ -8,7 +8,7 @@ This is a modernized fork of the original `ai-dock/base-image` project. All imag
 
 All containers in this stack share a common base which is designed to make running on cloud services such as [vast.ai](https://link.ai-dock.org/vast.ai) and [runpod.io](https://link.ai-dock.org/runpod.io) as straightforward and user friendly as possible.
 
-Common features and options are documented in the **[wiki for this repository](https://github.com/PhoneHomePhone/base-image/wiki)**.
+Common features and options are documented in the **[wiki for this repository](https://github.com/ai-dock/base-image/wiki)**.
 
 ## Pre-built Images
 
