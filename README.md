@@ -1,39 +1,44 @@
-[![Docker Build](https://github.com/ai-dock/base-image/actions/workflows/docker-build.yml/badge.svg)](https://github.com/ai-dock/base-image/actions/workflows/docker-build.yml)
+[![Docker Build](https://github.com/PhoneHomePhone/base-image/actions/workflows/docker-build.yml/badge.svg)](https://github.com/PhoneHomePhone/base-image/actions/workflows/docker-build.yml)
 
-# Base Image
+# Modernized AI-Dock Base Image
 
-All ai-dock images are extended from this base image.
-
-This file should form the basis for the README.md for all extended images, with nothing but this introduction removed and additional features documented as required.
+This is a modernized fork of the original `ai-dock/base-image` project. All images in the modernized stack are extended from this base. The primary update is the transition to an **Ubuntu 24.04** foundation.
 
 ## Documentation
 
-All AI-Dock containers share a common base which is designed to make running on container-first cloud services such as [vast.ai](https://link.ai-dock.org/vast.ai) as straightforward and user friendly as possible.
+All containers in this stack share a common base which is designed to make running on cloud services such as [vast.ai](https://link.ai-dock.org/vast.ai) and [runpod.io](https://link.ai-dock.org/runpod.io) as straightforward and user friendly as possible.
 
-Common features and options are documented in the [base wiki](https://github.com/ai-dock/base-image/wiki) but any additional features unique to this image will be detailed below.
+Common features and options are documented in the **[wiki for this repository](https://github.com/PhoneHomePhone/base-image/wiki)**.
 
 ## Pre-built Images
 
-Docker images are built automatically through a GitHub Actions workflow and hosted at the GitHub Container Registry.
+Docker images are built automatically through a GitHub Actions workflow and hosted on both Docker Hub and the GitHub Container Registry.
 
 #### Version Tags
 
-There is no `latest` tag.
-Tags follow these patterns:
+The `:latest` tag points to the latest stable CUDA runtime build (`:v1-cuda-12.8.1-runtime-ubuntu24.04`).
+
+Tags follow a clear and consistent pattern:
+`v1-<platform>-<platform_version>-<os_version>`
 
 ##### _CUDA_
-`:v2-cuda-[x.x.x]{-cudnn[x]}-[base|runtime|devel]-[ubuntu-version]`
+*   **Example:** `:v1-cuda-12.8.1-runtime-ubuntu24.04`
+*   **Latest Tag:** `:latest`
 
 ##### _ROCm_
-`:v2-rocm-[x.x.x]-[core|runtime|devel]-[ubuntu-version]`
-
-ROCm builds are experimental. Please give feedback.
+*   **Example:** `:v1-rocm-6.2-runtime-ubuntu22.04`
+*   **Note:** ROCm builds currently use an Ubuntu 22.04 base pending official driver support for 24.04.
 
 ##### _CPU_
-`:v2-cpu-[ubuntu-version]`
+*   **Example:** `:v1-cpu-ubuntu24.04`
+*   **Latest Tag:** `:latest-cpu`
 
-Browse [here](https://github.com/ai-dock/base-image/pkgs/container/base-image) for an image suitable for your target environment.
+Browse the available image tags on **[Docker Hub](https://hub.docker.com/r/phonehomephone/base-image/tags)** or on the **[GitHub Packages](https://github.com/PhoneHomePhone/base-image/pkgs/container/base-image)** page for this repository.
 
 ---
 
-_The author ([@robballantyne](https://github.com/robballantyne)) may be compensated if you sign up to services linked in this document. Testing multiple variants of GPU images in many different environments is both costly and time-consuming; This helps to offset costs_
+### Credits and Acknowledgements
+
+This project is a direct fork and modernization of the original, excellent work done by **[ai-dock](https://github.com/ai-dock)**. All credit for the foundational architecture and scripts belongs to the original author, [@robballantyne](https://github.com/robballantyne).
+
+This fork is maintained by [@PhoneHomePhone](https://github.com/PhoneHomePhone).
